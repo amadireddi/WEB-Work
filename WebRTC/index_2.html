@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+	<title>Oglie!!!</title>
+	
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	
+	<style>
+		
+		video {
+		    width:10em;
+		    height:7.5em;
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+		
+		
+		canvas {
+			display:none;
+		}
+		
+		img {
+			padding:2px;
+			z-index:-1;
+		}
+		
+		.blur {
+			-webkit-filter: blur(3px);
+		}
+		.grayscale{
+			-webkit-filter: grayscale(1);
+		}
+		.sepia{ 
+			-webkit-filter: sepia(1);
+		}
+		.bright{
+			-webkit-filter: brightness(2.5);			
+		}
+		.contrast{
+			-webkit-filter: contrast(5);			
+		}
+		.hue-rotate{
+			-webkit-filter: hue-rotate(125deg);	
+		}
+		.invert{
+			-webkit-filter: invert(1);			
+		}
+		.saturate{
+			-webkit-filter: saturate(3);			
+		}
+		.opacity{
+			-webkit-filter: opacity(0.3);			
+		}
+		
+	</style>
+	
+</head>
+<body>
+<div>
+	<center><video id="camera-stream-normal"></video><br>
+	<button id="snap">Snap Photo</button>
+</center>
+</div>
+
+<canvas id="canvas" width="160" height="120"></canvas>
+
+<div id="images"></div>
+
+
+<script>
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+var constraints = {audio: false, video: true};
+var canvas = document.getElementById("canvas");
+var video = document.querySelector("video");
+var context = canvas.getContext("2d");
+var myFilters = ["blur","grayscale","sepia","bright","contrast","hue-rotate","invert","saturate","opacity", "normal"];
+var currentFilter = 0;
+
+function successCallback(stream) {
+  window.stream = stream; // stream available to console
+  video.src = window.URL.createObjectURL(stream);
+  video.play();
+  
+}
+
+function errorCallback(error){
+  console.log("navigator.getUserMedia error: ", error);
+}
+navigator.getUserMedia(constraints, successCallback, errorCallback);
+
+document.getElementById("camera-stream-normal").addEventListener("click", function() {
+	$("#camera-stream-normal").attr('class', myFilters[currentFilter]);
+	currentFilter = ++currentFilter % myFilters.length;
+});
+
+// Trigger photo take
+document.getElementById("snap").addEventListener("click", function() {
+	context.drawImage(video, 0, 0, 160, 120);
+	
+	 var ctx = canvas.getContext("2d"),
+	    savedData = new Image();
+	    // get the data
+	    savedData.src = canvas.toDataURL("image/png");
+		
+	 $("#images").prepend("<img class="+myFilters[currentFilter-1]+" src="+savedData.src+">");
+	// currentFilter = ++currentFilter % myFilters.length;
+});
+</script>
+
+</body>
+</html>
